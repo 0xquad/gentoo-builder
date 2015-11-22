@@ -1,3 +1,4 @@
+# debian-small: see https://gist.github.com/0xquad/8aa3812ea7788d2bc687
 FROM debian-small
 LABEL A docker image holding the Gentoo portage tree to build Gentoo images
 RUN apt-get update && \
@@ -12,4 +13,4 @@ RUN wget -T 2 -t 2 \
     tar -vxJf portage-latest.tar.xz -C / && \
     rm portage-latest.tar.xz
 VOLUME /run/docker.sock
-
+VOLUME /dockerfiles
