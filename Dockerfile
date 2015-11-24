@@ -7,9 +7,9 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y wget bzip2 xz-utils docker-engine && \
     rm -fr /var/lib/apt /usr/share/{doc,man}
-RUN wget -T 2 -t 2 \
+RUN wget -q -T 2 -t 2 \
     ${GENTOO_MIRROR:-http://gentoo.osuosl.org/}/snapshots/portage-latest.tar.xz && \
-    tar -vxJf portage-latest.tar.xz -C / && \
+    tar -xJf portage-latest.tar.xz -C / && \
     rm portage-latest.tar.xz
 VOLUME /run/docker.sock
 
