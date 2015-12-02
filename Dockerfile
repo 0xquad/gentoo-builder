@@ -1,6 +1,8 @@
 # debian-small: see https://gist.github.com/0xquad/8aa3812ea7788d2bc687
 FROM debian-small
-LABEL A docker image holding the Gentoo portage tree to build Gentoo images
+MAINTAINER Alexandre Hamelin <alexandre.hamelin gmail.com>
+LABEL description="A docker image holding the Gentoo portage tree to build Gentoo images" \
+      copyright="(c) 2015"
 RUN apt-get update && \
     apt-get install -y apt-transport-https && \
     apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
