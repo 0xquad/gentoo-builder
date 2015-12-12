@@ -1,0 +1,44 @@
+gentoo-builder/Dockerfile
+    This creates a base system to build Gentoo images. Instances of this image
+    have all the requirements for building Gentoo images. Package compilation
+    and installation does not occur in this image, but happens in a container
+    that is dynamically run by this builder image.
+
+        ENTRYPOINT ["/usr/local/bin/build.sh"]
+
+    The build script accepts any package as its arguments.
+
+        docker run -dt gentoo-builder app-misc/curl
+
+    The build script does the following
+
+        1. Validate the basic requirements for building a new image
+            - a usable docker socket
+            - an existing portage tree
+            - the presence of arguments (packages to build)
+            - a valid base Gentoo image to use
+        2. Instanciate a base container in which the build will occur
+            - docker run -dt -v /usr/portage:/usr/portage $base
+        3. Update the portage tree
+            - docker exec $cid emerge --sync -q
+        4. Build the packages in the container
+            - docker exec $cid emerge -q $packages
+            - docker rm -fr /var/tmp/portage
+        5. Stop the container after the build
+        6. Commit the container to a new Gentoo image
+            - image is named "gentoo-" + first 4 characters of $cid
+            - add instruction VOLUME /usr/portage
+            - add instruction VOLUME /var/tmp/portage
+            - add instruction CMD ["/bin/bash"]
+        7. Remove the stopped container
+
+
+gentoo-base/Dockerfile
+    This will create a base gentoo image without the portage tree. Other Gentoo
+    images will be based on this one and will inherit characteristics of this
+    image. Packages that should be in every derived Gentoo images can be
+    included in this one.
+
+        VOLUME /usr/portage
+        VOLUME /var/tmp/portage
+        CMD ["/bin/bash"]
