@@ -9,11 +9,21 @@ docker version >/dev/null 2>&1 || {
     exit 1
 }
 
+[[ $# -ne 0 ]] || {
+    echo "No arguments given."
+    echo "usage: docker run -dt builder ARGS..."
+    echo "ARGS are packages to install to create a new Gentoo image"
+    exit 1
+}
+
 [[ -e ${PORTDIR} ]] || {
     curl -sL ${GENTOO_MIRROR}/snapshots/portage-latest.tar.xz | \
         tar -Jxf - -C ${PORTDIR%/*}/
 }
-cid=$(docker run -dt -v ${PORTDIR}:/usr/portage $BASEDIR})
+
+# TODO: Check for a valid $BASEIMG image
+
+cid=$(docker run -dt -v ${PORTDIR}:/usr/portage $BASEIMG})
 docker exec $cid emerge -q eix gentoolkit vim net-misc/curl
 docker exec $cid eselect news read --quiet
 docker exec $cid eix-update
