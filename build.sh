@@ -4,6 +4,11 @@
 : ${PORTDIR:=/portage}
 : ${BASEIMG:=gentoo/stage3-amd64}
 
+docker version >/dev/null 2>&1 || {
+    echo "Docker version cannot be determined"
+    exit 1
+}
+
 [[ -e ${PORTDIR} ]] || {
     curl -sL ${GENTOO_MIRROR}/snapshots/portage-latest.tar.xz | \
         tar -Jxf - -C ${PORTDIR%/*}/
