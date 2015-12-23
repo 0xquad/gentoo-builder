@@ -1,7 +1,7 @@
 #!/bin/bash
 
 : ${GENTOO_MIRROR:=http://mirror.csclub.uwaterloo.ca/gentoo-distfiles}
-: ${PORTDIR:=/portage}
+: ${PORTDIR:=/usr/portage}
 : ${BASEIMG:=gentoo/stage3-amd64}
 
 docker version >/dev/null 2>&1 || {
@@ -23,15 +23,20 @@ docker version >/dev/null 2>&1 || {
 
 # TODO: Check for a valid $BASEIMG image
 
-cid=$(docker run -dt -v ${PORTDIR}:/usr/portage $BASEIMG})
-docker exec $cid emerge -q eix gentoolkit vim net-misc/curl
+cid=$(docker run -dt --volumes-from $(hostname) ${BASEIMG})
+[[ -z "$cid" ]] && exit 1
+if ! docker exec $cid emerge -q "$@"; then
+    docker stop $cid >/dev/null
+    docker rm $cid >/dev/null
+    exit 1
+fi
 docker exec $cid eselect news read --quiet
 docker exec $cid eix-update
 docker exec $cid q -r
-docker exec $cid sed -i -e '$a MAKEOPTS="-j2"' /etc/portage/make.conf
-docker stop $cid
+docker stop $cid >/dev/null
 sleep 1
-docker commit -c 'CMD ["bash"]' -c 'VOLUME /usr/portage' $cid gentoo-base
-docker rm $cid
-echo "Base Gentoo image created."
-docker images | awk '$1 == "gentoo-base"'
+newtag=gentoo-${cid:0:6}
+docker commit -c 'CMD ["bash"]' -c 'VOLUME /usr/portage' $cid $newtag
+docker rm $cid >/dev/null
+echo "New Gentoo image created: $newtag"
+docker images | awk "$(printf '$1 == "%s"' $newtag)"
