@@ -1,0 +1,11 @@
+FROM gentoo/stage3-amd64
+MAINTAINER Alexandre Hamelin <alexandre.hamelin gmail.com>
+
+RUN sed -i -e '$a MAKEOPTS="-j2"' /etc/portage/make.conf
+RUN emerge-webrsync -q && \
+    emerge -q eix gentoolkit vim net-misc/curl && \
+    eselect news read --quiet && \
+    eix-update && q -r && \
+    rm -fr /usr/portage /var/tmp/portage
+
+CMD ["/bin/bash"]
