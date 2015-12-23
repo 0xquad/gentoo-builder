@@ -42,3 +42,9 @@ gentoo-base/Dockerfile
         VOLUME /usr/portage
         VOLUME /var/tmp/portage
         CMD ["/bin/bash"]
+
+
+docker run --volumes-from gentoo-builder -e PKGS="genkernel" gentoo-base
+    Create a new container that starts building the package genkernel.
+    The container will stop once the compilation is complete. The user creates
+    the new gentoo image with docker commit.
