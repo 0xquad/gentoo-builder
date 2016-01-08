@@ -1,10 +1,10 @@
 FROM gentoo/stage3-amd64
 MAINTAINER Alexandre Hamelin <alexandre.hamelin gmail.com>
 
-RUN sed -i -e 's/en_US/!d; s/^#//' /etc/locale.gen && locale-gen
+RUN sed -i -e '/en_US/!d; s/^#//' /etc/locale.gen && locale-gen
 COPY portage-files/make.conf /etc/portage/
 COPY portage-files/packages /etc/portage/profile/
 COPY portage-files/x86_64-none-linux-gnu /etc/portage/package.use/
-COPY strip.sh /root
+COPY strip.sh /root/
 RUN /root/strip.sh
 CMD ["/bin/bash"]
