@@ -1,11 +1,10 @@
 FROM gentoo/stage3-amd64
 MAINTAINER Alexandre Hamelin <alexandre.hamelin gmail.com>
 
-RUN sed -i -e '$a MAKEOPTS="-j2"' /etc/portage/make.conf
-RUN emerge-webrsync -q && \
-    emerge -q eix gentoolkit vim net-misc/curl && \
-    eselect news read --quiet && \
-    eix-update && q -r && \
-    rm -fr /usr/portage /var/tmp/portage
-
+RUN sed -i -e 's/en_US/!d; s/^#//' /etc/locale.gen && locale-gen
+COPY portage-files/make.conf /etc/portage/
+COPY portage-files/packages /etc/portage/profile/
+COPY portage-files/x86_64-none-linux-gnu /etc/portage/package.use/
+COPY strip.sh /root
+RUN /root/strip.sh
 CMD ["/bin/bash"]
