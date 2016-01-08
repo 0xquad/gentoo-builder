@@ -5,7 +5,7 @@ echo "Syncing a temporary copy of the portage tree..."
 emerge-webrsync -q
 
 USE=internal-glib emerge -q1 pkgconfig
-emerge -Nq @world
+emerge -qND @world
 eselect news read --quiet
 etc-update -q --automode=-3
 
