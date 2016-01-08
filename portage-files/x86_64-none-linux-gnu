@@ -1,0 +1,3 @@
+sys-apps/portage python_targets_python3_4
+dev-lang/python xml threads
+dev-util/pkgconfig internal-glib
