@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 
 echo "Syncing a temporary copy of the portage tree..."
 emerge-webrsync -q
