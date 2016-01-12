@@ -2,7 +2,7 @@
 
 : ${GENTOO_MIRROR:=http://mirror.csclub.uwaterloo.ca/gentoo-distfiles}
 : ${PORTDIR:=/usr/portage}
-: ${BASEIMG:=gentoo/stage3-amd64}
+: ${BASEIMG:=gentoo-minimal}
 
 docker version >/dev/null 2>&1 || {
     echo "Docker version cannot be determined"
