@@ -7,9 +7,12 @@ COPY portage-files/make.conf /etc/portage/
 COPY portage-files/packages /etc/portage/profile/
 COPY portage-files/x86_64-none-linux-gnu /etc/portage/package.use/
 RUN emerge -qND @world
+RUN CLEAN_DELAY=0 emerge -c
+# Repeat, it seems to miss some packages
+RUN emerge -quND @world
+RUN CLEAN_DELAY=0 emerge -c
 RUN eselect news read --quiet
 RUN etc-update -q --automode -3
-RUN CLEAN_DELAY=0 emerge -c
 RUN rm -fr /usr/share/{doc,man} /usr/lib/python3.4/test \
            /usr/portage /var/tmp/portage /var/log/emerge* /var/log/portage/*
 CMD ["/bin/bash"]
