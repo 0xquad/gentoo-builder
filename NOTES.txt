@@ -57,35 +57,37 @@ Building a minimal Gentoo system
 
     docker run -ti -v /usr/portage:/usr/portage gentoo/stage3-amd64 bash
 
-2. Remove all USE flags and recompile everything
+2. Remove all USE flags and adjust other portage variables
 
+    (adjust USE flags to a minimum)
     nano /etc/portage/make.conf
 
         # leave all other flags in place
         USE="-* ncurses readline ipv6 ..."
 
+        # set other portage variables
+        CPU_FLAGS_X86="mmx mmxext sse sse2 sse3"
+        PYTHON_TARGETS="python3_4"
+        USE_PYTHON="3.4"
+        GENTOO_MIRRORS="http://some-mirror-here.example.com/gentoo"
+
     (set required flags)
-    echo "sys-apps/portage python_targets_python3_4" >>
-        /etc/portage/package.use/x86_64-none-linux-gnu
-    echo "app-portage/gentoolkit python_targets_python3_4" >>
-        /etc/portage/package.use/x86_64-none-linux-gnu
     echo "dev-lang/python xml threads" >>
         /etc/portage/package.use/x86_64-none-linux-gnu
-
-    (recompile; gcc will take the most time)
-    emerge -Nq @world
-    eselect news read --quiet
-    etc-update
+    echo "dev-util/pkgconfig internal-glib" >>
+        /etc/portage/package.use/x86_64-none-linux-gnu
 
 3. Regenerate the locale archive (100MB+ by default, downsize to 2MB)
 
+    (keep only the English locale)
     sed -i -e 's/en_US/!d; s/^#//' /etc/locale.gen
     locale-gen
 
-4. Remove unnecessary system packages
+4. Recompile everything
 
-    (remove dependency of pkgconfig on glib)
-    USE=internal-glib emerge -q1 pkgconfig
+    emerge -qND @world
+
+5. Remove unnecessary system packages
 
     (put the following list in /etc/portage/profile/packages)
         -*net-misc/openssh
@@ -115,19 +117,30 @@ Building a minimal Gentoo system
 
     (remove all unnecessary packages)
     CLEAN_DELAY=0 emerge -c
-    rm -fr /usr/share/{doc,man} /usr/lib/python3.4/test
 
-5. Export the stripped down running container to a new image
+5. Remove additional packages (seems to be required)
+
+    emerge -quND @world
+    CLEAN_DELAY=0 emerge -c
+    eselect news read --quiet
+    etc-update -q --automode -3
+
+6. Additional clean up
+
+    rm -fr /usr/share/{doc,man} /usr/lib/python3.4/test \
+           /var/log/emerge* /var/log/portage/* /usr/portage
+
+7. Export the stripped down running container to a new image
 
     docker export $cid | docker import \
         -c 'VOLUME /usr/portage' -c 'CMD ["/bin/bash"]' - gentoo-minimal
 
-6. Validate the size of the new image and run a container based off it
+8. Validate the size of the new image and run a container based off it
 
     docker images
     docker run -ti --rm -v /usr/portage:/usr/portage gentoo-minimal
 
-7. Start installing packages and customizing the container
+9. Start installing packages and customizing the container
 
     - remove the '-*' USE flag in /etc/portage/make.conf
     - add other appropriate use flags as needed
