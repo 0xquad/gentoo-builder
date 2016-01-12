@@ -1,10 +1,15 @@
 FROM gentoo/stage3-amd64
 MAINTAINER Alexandre Hamelin <alexandre.hamelin gmail.com>
 
+RUN emerge-webrsync -q
 RUN sed -i -e '/en_US/!d; s/^#//' /etc/locale.gen && locale-gen
 COPY portage-files/make.conf /etc/portage/
 COPY portage-files/packages /etc/portage/profile/
 COPY portage-files/x86_64-none-linux-gnu /etc/portage/package.use/
-COPY strip.sh /root/
-RUN /root/strip.sh
+RUN emerge -qND @world
+RUN eselect news read --quiet
+RUN etc-update -q --automode -3
+RUN CLEAN_DELAY=0 emerge -c
+RUN rm -fr /usr/share/{doc,man} /usr/lib/python3.4/test \
+           /usr/portage /var/tmp/portage /var/log/emerge* /var/log/portage/*
 CMD ["/bin/bash"]
