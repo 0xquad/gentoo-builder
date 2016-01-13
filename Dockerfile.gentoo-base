@@ -8,8 +8,12 @@ COPY portage-files/packages /etc/portage/profile/
 COPY portage-files/x86_64-none-linux-gnu /etc/portage/package.use/
 RUN emerge -qND @world
 RUN CLEAN_DELAY=0 emerge -c
-# Repeat, it seems to miss some packages
+# Repeat as it seems to miss some packages on the first pass.
 RUN emerge -quND @world
+# For some reason sys-devel/gettext isn't picked up for -nls -acl. And
+# rebuilding it this way makes emerge @world want to pull in a bunch of
+# packages again and enables back the +ssl flag.
+RUN emerge -q1 gettext
 RUN CLEAN_DELAY=0 emerge -c
 RUN eselect news read --quiet
 RUN etc-update -q --automode -3
